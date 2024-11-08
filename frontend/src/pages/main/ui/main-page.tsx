@@ -1,9 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { UploadForm } from "@/components/upload-form";
 
 export const MainPage = () => {
   return (
-    <section>
-      <Button>asdasd</Button>
+    <section className="">
+      <UploadForm />
     </section>
   );
 };
