@@ -2,7 +2,7 @@ import { HeaderItems } from "../model/header-items";
 
 export const Header = () => {
   return (
-    <header className="bg-white shadow-md p-4 w-full">
+    <header className="bg-white shadow-md p-4  ">
       <nav className="container mx-auto flex justify-center space-x-8">
         {HeaderItems.map((item) => (
           <a
