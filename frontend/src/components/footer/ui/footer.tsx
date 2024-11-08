@@ -3,10 +3,10 @@ import { FooterSocialLinks } from "../model/footer-items";
 
 export const Footer = () => {
   return (
-    <footer className="bg-gray-100 shadow-inner py-6">
+    <footer className="bg-gray-100 px-8 shadow-inner py-6">
       <div className="container mx-auto flex flex-col items-center space-y-4 sm:flex-row sm:justify-between sm:space-y-0">
         {/* Left Side: Navigation Links */}
-        <nav className="flex space-x-8 text-gray-700">
+        <nav className="flex   text-gray-700">
           {FooterNavLinks.map((item) => (
             <a
               key={item.href}
