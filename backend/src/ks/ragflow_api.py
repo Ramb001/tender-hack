@@ -114,7 +114,10 @@ class RagflowApi:
         url = f"{self.base_url}/chats"
         data = {
             "name": name,
-            "dataset_ids": dataset_ids
+            "dataset_ids": dataset_ids,
+            'prompt':{
+                'empty_response': '0'
+            }
         }
 
         response = requests.post(url, headers=self.headers, data=json.dumps(data))
@@ -152,7 +155,7 @@ class RagflowApi:
 
         # Обрабатываем ответ
         if response.status_code == 200:
-            return response.json()
+            return response.json()['data']['answer']
         else:
             print(f"Ошибка запроса: {response.status_code} - {response.text}")
             return None
@@ -169,7 +172,6 @@ class RagflowApi:
         response = requests.delete(url, headers=self.headers, data=json.dumps(data))
         
         if response.status_code == 200:
-            print(f"Chunks {chunk_ids} successfully deleted.")
             return response.json()
         else:
             print(f"Error deleting chunks: {response.status_code} - {response.text}")
@@ -186,7 +188,6 @@ class RagflowApi:
         if chunks_response and chunks_response.get('data', {}).get('chunks'):
             # Step 2: Get all chunk IDs
             chunk_ids = [chunk['id'] for chunk in chunks_response['data']['chunks']]
-            print(f"Found chunks: {chunk_ids}")
             
             # Step 3: Delete all chunks
             return self.delete_chunks(dataset_id, document_id, chunk_ids)
@@ -234,8 +235,8 @@ class RagflowApi:
 
 
 
-def check_status(path_files: list, promts: list, con: RagflowApi):
-    dataset_id = con.create_dataset('dddadasd2aaddad23123adвada')['data']['id']
+def check_status(path_files: list, promts: list, con: RagflowApi, sleep: int=70):
+    dataset_id = con.create_dataset('gfddffd')['data']['id']
     files_ids = []
 
     for path in path_files:
@@ -243,9 +244,9 @@ def check_status(path_files: list, promts: list, con: RagflowApi):
     
     con.parse_files(dataset_id, files_ids)
     
-    time.sleep(70)
+    time.sleep(sleep)
 
-    chat_id = con.create_chat_assistent('search_bot2', [dataset_id,])['data']['id']
+    chat_id = con.create_chat_assistent('search_dbo3d23t22', [dataset_id,])['data']['id']
 
     response = ''
     msg = ''
@@ -257,24 +258,30 @@ def check_status(path_files: list, promts: list, con: RagflowApi):
             msg = f"""найди данные, но они не обязательно должны: {msg}
                     Оценивай соответствия для каждого пункта для данных запроса и данных из документа в процентах от 0 до 100"""
             
-            response = response + con.ask_question(chat_id, msg)
+            response = response + con.ask_question(chat_id, msg)  #Бери вывод какой нужно под 
 
     if msg != 0:
         msg = f"""найди данные, но они не обязательно должны: {msg}
                     Оценивай соответствия для каждого пункта для данных запроса и данных из документа в процентах от 0 до 100"""
             
-        response = response + con.ask_question(chat_id, msg)
+        response = f'{response}  {con.ask_question(chat_id, msg)}' #Бери вывод какой нужно под 
         
     con.delete_chat_assistent(chat_id)
     con.delete_dataset(files_ids)
-    con.delete_all_chunks()
 
     for document_id in files_ids:
-        print(f"Deleting all chunks for document {document_id}...")
         con.delete_all_chunks(dataset_id, document_id)
 
-    print(response)
+    sum(map(response.split(),int))/ len(prompts)
 
+
+
+
+
+
+
+
+# Example  from from ragflow_api import check_status
 con = RagflowApi('localhost:9380','ragflow-JhZDM0MmM3OWU1NTExZWY5NGQzMDI0Mm')
 
 prompts = [
