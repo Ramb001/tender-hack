@@ -88,6 +88,24 @@ class RagflowApi:
             return None
         
 
+    def list_chunks(self, dataset_id: str, document_id: str, keywords: str = '', page: int = 1, page_size: int = 1024):
+        """
+        List all chunks of a specific document.
+        """
+        url = f"{self.base_url}/datasets/{dataset_id}/documents/{document_id}/chunks"
+        params = {
+            "keywords": keywords,
+            "page": page,
+            "page_size": page_size
+        }
+        response = requests.get(url, headers=self.headers, params=params)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Error fetching chunks: {response.status_code} - {response.text}")
+            return None
+
 
     def create_chat_assistent(self, name: str, dataset_ids: list):
         """
@@ -108,23 +126,6 @@ class RagflowApi:
             print(f"Ошибка создания чата: {response.status_code} - {response.text}")
             return None
         
-    def create_session(self, chat_id: str, session_name: str):
-        """
-        Создает сессию для указанного чата.
-        """
-        url = f"{self.base_url}/chats/{chat_id}/sessions"
-        data = {
-            "name": session_name
-        }
-
-        response = requests.post(url, headers=self.headers, data=json.dumps(data))
-
-        if response.status_code == 200:
-            print("Сессия успешно создана.")
-            return response.json()
-        else:
-            print(f"Ошибка создания сессии: {response.status_code} - {response.text}")
-            return None
 
     def ask_question(self, chat_id: str, question: str, session_id: str = None, stream: bool = False):
         """
@@ -155,15 +156,86 @@ class RagflowApi:
         else:
             print(f"Ошибка запроса: {response.status_code} - {response.text}")
             return None
+    
 
-con = RagflowApi('localhost:9380','ragflow-JhZDM0MmM3OWU1NTExZWY5NGQzMDI0Mm')
+    def delete_chunks(self, dataset_id: str, document_id: str, chunk_ids: list):
+        """
+        Delete chunks by their IDs.
+        """
+        url = f"{self.base_url}/datasets/{dataset_id}/documents/{document_id}/chunks"
+        data = {
+            "chunk_ids": chunk_ids
+        }
+        response = requests.delete(url, headers=self.headers, data=json.dumps(data))
+        
+        if response.status_code == 200:
+            print(f"Chunks {chunk_ids} successfully deleted.")
+            return response.json()
+        else:
+            print(f"Error deleting chunks: {response.status_code} - {response.text}")
+            return None
+        
 
-path_files = ['backend/src/ks/2.docx', 'backend/src/ks/3.pdf']
+    def delete_all_chunks(self, dataset_id: str, document_id: str):
+        """
+        List and delete all chunks of a given document.
+        """
+        # Step 1: List all chunks
+        chunks_response = self.list_chunks(dataset_id, document_id)
+        
+        if chunks_response and chunks_response.get('data', {}).get('chunks'):
+            # Step 2: Get all chunk IDs
+            chunk_ids = [chunk['id'] for chunk in chunks_response['data']['chunks']]
+            print(f"Found chunks: {chunk_ids}")
+            
+            # Step 3: Delete all chunks
+            return self.delete_chunks(dataset_id, document_id, chunk_ids)
+        else:
+            print("No chunks found to delete.")
+            return None
 
 
-def get_name_buys(path_files):
-    con = RagflowApi('localhost:9380','ragflow-JhZDM0MmM3OWU1NTExZWY5NGQzMDI0Mm')
-    dataset_id = con.create_dataset('dddadaadadвada')['data']['id']
+    def delete_chat_assistent(self, chat_id: list):
+        """
+        Удаляет чат-помощника с заданными параметрами.
+        """
+        url = f"{self.base_url}/chats"
+        data = {
+            "ids": chat_id
+        }
+
+        response = requests.delete(url, headers=self.headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            print("Чат успешно удален.")
+            return response.json()
+        else:
+            print(f"Ошибка создания чата: {response.status_code} - {response.text}")
+            return None
+    
+
+    def delete_dataset(self, dataset_ids: list):
+        """
+        Удаляет dataset.
+        """
+        url = f"{self.base_url}/datasets"
+        data = {
+            "ids": dataset_ids
+        }
+
+        response = requests.delete(url, headers=self.headers, data=json.dumps(data))
+
+        if response.status_code == 200:
+            print("Датасет успешно удален.")
+            return response.json()
+        else:
+            print(f"Ошибка создания чата: {response.status_code} - {response.text}")
+            return None
+
+
+
+def check_status(path_files: list, promts: list, con: RagflowApi):
+    dataset_id = con.create_dataset('dddadasd2aaddad23123adвada')['data']['id']
     files_ids = []
 
     for path in path_files:
@@ -171,13 +243,60 @@ def get_name_buys(path_files):
     
     con.parse_files(dataset_id, files_ids)
     
-    time.sleep(200)
+    time.sleep(70)
 
-    chat_id = con.create_chat_assistent('search_bot', [dataset_id,])['data']['id']
+    chat_id = con.create_chat_assistent('search_bot2', [dataset_id,])['data']['id']
 
-print(con.ask_question('995d848d9e8111efa96d0242ac120006', 'Выпиши мне Главную суть документа, будь что "поставка товаров", "закупка товаров" выпиши именно как в доументе написано это одна фраза. Давай пример введу'))
+    response = ''
+    msg = ''
+
+    for i in range(len(promts)):
+        msg += promts[i]
+
+        if i%5==0:
+            msg = f"""найди данные, но они не обязательно должны: {msg}
+                    Оценивай соответствия для каждого пункта для данных запроса и данных из документа в процентах от 0 до 100"""
+            
+            response = response + con.ask_question(chat_id, msg)
+
+    if msg != 0:
+        msg = f"""найди данные, но они не обязательно должны: {msg}
+                    Оценивай соответствия для каждого пункта для данных запроса и данных из документа в процентах от 0 до 100"""
+            
+        response = response + con.ask_question(chat_id, msg)
+        
+    con.delete_chat_assistent(chat_id)
+    con.delete_dataset(files_ids)
+    con.delete_all_chunks()
+
+    for document_id in files_ids:
+        print(f"Deleting all chunks for document {document_id}...")
+        con.delete_all_chunks(dataset_id, document_id)
+
+    print(response)
+
+con = RagflowApi('localhost:9380','ragflow-JhZDM0MmM3OWU1NTExZWY5NGQzMDI0Mm')
+
+prompts = [
+    "Документ должен содержать упоминание об объекте закупки: 'Закупка оборудования для офиса', часто обозначенном как 'объект закупки'.",
+    "Документ должен включать указание о необходимости исполнения контракта или аналогичную формулировку.",
+    "В документе не должно быть информации о необходимости лицензий или сертификатов, либо должно быть указано, что они не требуются.",
+    "Документ должен содержать информацию о месте доставки: 'Москва, ул. Ленина, д. 10', с указанием начальной даты: '2024-12-01' и конечной даты: '2024-12-10'.",
+    "Документ должен содержать информацию о месте доставки: 'Санкт-Петербург, Невский пр., д. 5', с указанием начальной даты: '2025-01-01' и конечной даты: '2025-01-05'.",
+    "Документ должен содержать явное указание цены контракта: 1500000.",
+    "Документ должен содержать явное указание стартовой цены: 1200000.",
+    "Документ должен содержать упоминание о товаре 'Компьютер' с перечислением характеристик:",
+    "- Характеристика 'Процессор' с значением 'Intel i7'.",
+    "- Характеристика 'Оперативная память' с значением '16GB'.",
+    "Документ должен содержать упоминание о товаре 'Принтер' с перечислением характеристик:",
+    "- Характеристика 'Тип' с значением 'Лазерный'.",
+    "- Характеристика 'Цвет' с значением 'Черно-белый'."
+]
+
+path_files = ['backend/src/ks/2.docx', 'backend/src/ks/1.docx']
+
+check_status(path_files=path_files, promts=prompts ,con=RagflowApi('localhost:9380','ragflow-JhZDM0MmM3OWU1NTExZWY5NGQzMDI0Mm'))
 
 
-#get_name_buys(path_files)
 
 
