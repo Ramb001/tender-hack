@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter
 
 from src.models.request import AnalyzeSessionsData
@@ -7,6 +9,7 @@ router = APIRouter()
 
 
 @router.post("/session/analyze", tags=["session"])
-async def analyze_session(data: list[str]):
-    for i in data:
+async def analyze_session(data: AnalyzeSessionsData):
+    for i in data.urls:
         await get_documents(i)
+        time.sleep(5)
