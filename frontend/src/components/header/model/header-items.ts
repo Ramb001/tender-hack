@@ -5,15 +5,15 @@ interface HeaderTypes {
 
 export const HeaderItems: HeaderTypes[] = [
   {
-    href: "/home",
-    value: "Home",
+    href: "/",
+    value: "Главная",
   },
   {
     href: "/about",
-    value: "About",
+    value: "О нас",
   },
   {
     href: "/contact",
-    value: "Contact",
+    value: "Контакты",
   },
 ];

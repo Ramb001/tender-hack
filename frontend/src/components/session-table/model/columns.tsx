@@ -1,4 +1,5 @@
-import { Checkbox } from '@/components/ui/checkbox'
+import { StatusPin } from "@/components/status-pin";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Routes } from "@/shared/consts";
 import { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
@@ -38,9 +39,11 @@ export const columns: ColumnDef<Session>[] = [
   {
     accessorKey: "status",
     header: "Статус",
+    cell: ({ row }) => (
+      <StatusPin status={row.original.status === "failed" ? false : true} />
+    ),
   },
   {
-    accessorKey: "id",
     header: "Подробнее",
     cell: ({ row }) => (
       <Link to={`${Routes.session}/${row.original.id}`}>Подробнее</Link>
