@@ -13,10 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -36,7 +32,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full ">
       <div></div>
-      <div className="rounded-2xl bg-white shadow-xl border w-full">
+      <div className="rounded-2xl bg-white shadow-xl border ">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

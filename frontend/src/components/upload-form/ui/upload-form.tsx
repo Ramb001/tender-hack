@@ -28,7 +28,7 @@ export const UploadForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       urls: "",
-      options: ["name", "lisence"],
+      options: ["1", "3"],
     },
   });
 
@@ -44,8 +44,8 @@ export const UploadForm = () => {
       .map((url) => url.split("/").pop() || ""); // Get the last part of each URL
 
     uploadUrl({
-      url: urlSegments,
-      options: values.options,
+      urls: urlSegments,
+      paremeters: values.options.map((item) => +item),
     })
       .unwrap()
       .then(() =>
@@ -124,7 +124,7 @@ export const UploadForm = () => {
                       <Checkbox
                         checked={selectAll}
                         onCheckedChange={(checked) =>
-                          handleSelectAllChange(checked)
+                          handleSelectAllChange(checked as boolean)
                         }
                       />
                     </FormControl>
