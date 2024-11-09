@@ -16,26 +16,19 @@ async def get_file(auction_id: str, file_id: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status == 200:
-                # Попробуем получить имя файла из заголовков ответа, если доступно
                 content_disposition = response.headers.get("Content-Disposition", "")
                 filename = None
-                # Проверяем, содержит ли заголовок параметр filename*
                 if "filename*=" in content_disposition:
-                    # Извлекаем закодированное имя файла после 'filename*='
                     encoded_filename = content_disposition.split("filename*=")[
                         -1
                     ].split("''")[-1]
-                    # Декодируем UTF-8
                     filename = urllib.parse.unquote(encoded_filename)
                 elif "filename=" in content_disposition:
-                    # Если обычное имя файла (для простых случаев)
                     filename = content_disposition.split("filename=")[-1].strip('"')
 
-                # Если filename не найден, используем auction_id как имя файла
                 if not filename:
                     filename = f"{auction_id}.file"
 
-                # Сохраняем файл в указанную директорию
                 file_path = os.path.join(dir_path, filename)
                 with open(file_path, "wb") as f:
                     while True:
@@ -68,13 +61,11 @@ async def get_documents(auction_id: str) -> Dict[str, Any]:
 
     async with aiohttp.ClientSession() as client:
         try:
-            # Fetch auction data
             async with client.get(url) as response:
                 response.raise_for_status()
                 auction_data = await response.json()
                 print(f"Auction data {auction_id} fetched successfully.")
 
-                # Fetch additional info for each item in the auction
                 for item in auction_data.get("items", []):
                     item_id = item.get("id")
                     if item_id:
