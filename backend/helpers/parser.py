@@ -1,7 +1,44 @@
-import aiohttp
-import json
 import os
+import json
+import time
+
+import aiohttp
+import urllib.parse
+
 from typing import Any, Dict
+
+
+async def get_file(auction_id: str, file_id: str):
+    url = f"https://zakupki.mos.ru/newapi/api/FileStorage/Download?id={file_id}"
+    dir_path = f"data/{auction_id}"
+    os.makedirs(dir_path, exist_ok=True)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                content_disposition = response.headers.get("Content-Disposition", "")
+                filename = None
+                if "filename*=" in content_disposition:
+                    encoded_filename = content_disposition.split("filename*=")[
+                        -1
+                    ].split("''")[-1]
+                    filename = urllib.parse.unquote(encoded_filename)
+                elif "filename=" in content_disposition:
+                    filename = content_disposition.split("filename=")[-1].strip('"')
+
+                if not filename:
+                    filename = f"{auction_id}.file"
+
+                file_path = os.path.join(dir_path, filename)
+                with open(file_path, "wb") as f:
+                    while True:
+                        chunk = await response.content.read(1024)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                print(f"File saved as {file_path}")
+            else:
+                print(f"Failed to download file. HTTP status: {response.status}")
 
 
 async def get_item_additional_info(item_id: int) -> Dict[str, Any]:
@@ -34,14 +71,24 @@ async def get_documents(auction_id: str) -> Dict[str, Any]:
                     if item_id:
                         additional_info = await get_item_additional_info(item_id)
                         item["additionalInfo"] = additional_info
+                        time.sleep(5)
 
-                os.makedirs("data", exist_ok=True)
+                folder_path = os.path.join("data", auction_id)
+                os.makedirs(folder_path, exist_ok=True)
 
-                file_path = os.path.join("data", f"{auction_id}.json")
+                file_path = os.path.join(folder_path, "data.json")
                 with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(auction_data, f, ensure_ascii=False, indent=4)
 
                 print(f"Data written to {file_path}.")
+
+                for file_id in [item["id"] for item in auction_data["files"]]:
+                    await get_file(
+                        file_id=file_id,
+                        auction_id=auction_id,
+                    )
+                    time.sleep(5)
+
                 return auction_data
         except aiohttp.ClientError as e:
             print(f"Request error: {e}")

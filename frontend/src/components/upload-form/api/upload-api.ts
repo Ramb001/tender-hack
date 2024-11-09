@@ -4,9 +4,9 @@ import { UploadDtoRequest, UploadDtoResponse } from "./upload-api-dto";
 export const uploadApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     uploadUrl: build.mutation<UploadDtoResponse, UploadDtoRequest>({
-      query: ({ url }) => ({
+      query: (body) => ({
         url: `/uploadUrl`,
-        body: { url },
+        body: { body },
         method: "POST",
       }),
     }),

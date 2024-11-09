@@ -1,28 +1,28 @@
 import { z } from "zod";
 export const options = [
   {
-    id: "recents",
-    label: "Recents",
+    id: "1",
+    label: "Наименование",
   },
   {
-    id: "home",
-    label: "Home",
+    id: "2",
+    label: "Обеспечение исполнения контракта",
   },
   {
-    id: "applications",
-    label: "Applications",
+    id: "3",
+    label: "Наличие сертификатов/лицензий",
   },
   {
-    id: "desktop",
-    label: "Desktop",
+    id: "4",
+    label: "График поставок",
   },
   {
-    id: "downloads",
-    label: "Downloads",
+    id: "5",
+    label: "Максимальное значение цены контракта / Начальная цена",
   },
   {
-    id: "documents",
-    label: "Documents",
+    id: "6",
+    label: "Характеристики",
   },
 ] as const;
 

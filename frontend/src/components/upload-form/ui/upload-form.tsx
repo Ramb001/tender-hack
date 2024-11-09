@@ -19,22 +19,34 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { LoaderIcon } from "lucide-react";
+import { useState } from "react";
 
 export const UploadForm = () => {
   const { toast } = useToast();
-  const [uploadUrl, { isSuccess, isError, isLoading }] = useUploadUrlMutation();
+  const [uploadUrl, { isLoading }] = useUploadUrlMutation();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       urls: "",
-      options: ["recents", "home"],
+      options: ["1", "3"],
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Разделяем строки на массив ссылок
+  // Manage "Select All" checkbox
+  const [selectAll, setSelectAll] = useState(false);
 
-    uploadUrl({ url: values.urls })
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+    const urlSegments = values.urls
+      .split("\n") // Split by line breaks to get each URL
+      .map((url) => url.trim()) // Trim whitespace from each line
+      .filter(Boolean) // Remove any empty lines
+      .map((url) => url.split("/").pop() || ""); // Get the last part of each URL
+
+    uploadUrl({
+      urls: urlSegments,
+      paremeters: values.options.map((item) => +item),
+    })
       .unwrap()
       .then(() =>
         toast({
@@ -48,17 +60,17 @@ export const UploadForm = () => {
           title: "Произошла ошибка, попробуйте еще раз",
         })
       );
-
-    // if (isError) {
-    // }
-    // if (isSuccess) {
-    // }
   }
+
+  const handleSelectAllChange = (checked: boolean) => {
+    setSelectAll(checked);
+    form.setValue("options", checked ? options.map((item) => item.id) : []);
+  };
 
   return (
     <Form {...form}>
       <form
-        className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-300 space-y-6"
+        className="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-md border border-gray-300 space-y-6"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <FormField
@@ -106,6 +118,22 @@ export const UploadForm = () => {
                     </FormDescription>
                   </div>
 
+                  {/* Select All Checkbox */}
+                  <FormItem className="flex items-center gap-4 mb-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={selectAll}
+                        onCheckedChange={(checked) =>
+                          handleSelectAllChange(checked as boolean)
+                        }
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal text-gray-700">
+                      Выбрать все
+                    </FormLabel>
+                  </FormItem>
+
+                  {/* Individual Option Checkboxes */}
                   <div className="space-y-3">
                     {options.map((item) => (
                       <FormField
@@ -116,22 +144,24 @@ export const UploadForm = () => {
                           return (
                             <FormItem
                               key={item.id}
-                              className="flex items-center space-x-3"
+                              className="flex items-center gap-4"
                             >
                               <FormControl>
                                 <Checkbox
                                   checked={field.value?.includes(item.id)}
                                   onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...field.value,
-                                          item.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== item.id
-                                          )
+                                    const updatedValues = checked
+                                      ? [...field.value, item.id]
+                                      : field.value.filter(
+                                          (value) => value !== item.id
                                         );
+
+                                    field.onChange(updatedValues);
+
+                                    // Update selectAll based on options state
+                                    setSelectAll(
+                                      updatedValues.length === options.length
+                                    );
                                   }}
                                 />
                               </FormControl>

@@ -2,4 +2,5 @@ from pydantic import BaseModel
 
 
 class AnalyzeSessionsData(BaseModel):
-    auction_id: str
+    urls: list[str]
+    parameters: list[int]
