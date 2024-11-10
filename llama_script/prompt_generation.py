@@ -43,11 +43,13 @@ def GeneratePrompts(file_path, request_keys):
     for item in items:
         item_name = item['name']
 
-        all_prompts['items'].append(f"Документ должен содержать упоминание о товаре *{item_name}* с перечислением характеристик:")
+        characteristics = []
         for characteristic in item['characteristics']:
             char_name = characteristic['name']
             char_value = characteristic['value']
-            all_prompts['items'].append(f"- Характеристика *{char_name}* с значением *{char_value}*.")
+            characteristics.append(f"- Характеристика *{char_name}* с значением *{char_value}*.")
+
+        all_prompts['items'].append({"item_name": f"Документ должен содержать упоминание о товаре *{item_name}* с перечислением характеристик:", "characteristics": characteristics})
     
     prompts_list = []
     for key in request_keys:
@@ -65,4 +67,7 @@ if __name__ == '__main__':
 
     request_keys = ['name', 'is_contract_guarantee_required', 'is_license_production', 'delivery_stages', 'cost', 'items']
     result = GeneratePrompts(file_path, request_keys)
+
+    with open("prompts.json", 'w', encoding='utf-8') as file:
+        json.dump(result, file, ensure_ascii=False, indent=4)
     print(result)
