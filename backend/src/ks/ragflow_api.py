@@ -2,6 +2,8 @@ import requests
 import json
 import base64
 import time
+import hashlib
+import secrets
 
 class RagflowApi:
     def __init__(self, address: str, api_key: str):
@@ -209,6 +211,7 @@ class RagflowApi:
 
         if response.status_code == 200:
             print("Чат успешно удален.")
+            print(f"Ошибка создания чата: {response.status_code} - {response.text}")
             return response.json()
         else:
             print(f"Ошибка создания чата: {response.status_code} - {response.text}")
@@ -228,19 +231,19 @@ class RagflowApi:
 
         if response.status_code == 200:
             print("Датасет успешно удален.")
+            print(f"Ошибка создания чата: {response.status_code} - {response.text}")
             return response.json()
         else:
             print(f"Ошибка создания чата: {response.status_code} - {response.text}")
             return None
 
     def check_document(self, dataset_id):
-        url = f"{self.base_url}/document/list?kb_id{dataset_id}"
+        url = f"{self.base_url}/datasets/{dataset_id}/documents"
         data = {
 
         }
         response = requests.get(url, headers=self.headers, data=json.dumps(data))
-
-        for status in response['data']['docs']:
+        for status in response.json()['data']['docs']:
             if int(status['progress']) != 1:
                 return False
             
@@ -248,7 +251,7 @@ class RagflowApi:
 
 
 def check_status(path_files: list, promts: list, con: RagflowApi, sleep: int=70):
-    dataset_id = con.create_dataset('124daвыфsf1d24')['data']['id']
+    dataset_id = con.create_dataset(secrets.token_hex(16))['data']['id']
     files_ids = []
 
     for path in path_files:
@@ -256,10 +259,10 @@ def check_status(path_files: list, promts: list, con: RagflowApi, sleep: int=70)
     
     con.parse_files(dataset_id, files_ids)
     
-    while(not con.check_document()):
+    while(not con.check_document(dataset_id)):
         time.sleep(20)
 
-    chat_id = con.create_chat_assistent('124dвыфdsa12f4', [dataset_id,])['data']['id']
+    chat_id = con.create_chat_assistent(secrets.token_hex(16), [dataset_id,])['data']['id']
     response = ''
     msg = ''
 
