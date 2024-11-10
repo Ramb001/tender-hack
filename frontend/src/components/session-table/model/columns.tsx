@@ -8,15 +8,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 
 export type Session = {
-  id: string;
+  auction_id: string;
   status?: "success" | "failed";
-  answers?: [
-    {
-      characteristic: string;
-      match_percent: string;
-      message: string;
-    }
-  ];
+  asnwers?: string[];
 };
 
 export const columns: ColumnDef<Session>[] = [
@@ -43,16 +37,16 @@ export const columns: ColumnDef<Session>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "auction_id",
     header: "Номер сессии",
   },
-  {
-    accessorKey: "status",
-    header: "Статус",
-    cell: ({ row }) => (
-      <StatusPin status={row.original.status === "failed" ? false : true} />
-    ),
-  },
+  // {
+  //   accessorKey: "status",
+  //   header: "Статус",
+  //   cell: ({ row }) => (
+  //     <StatusPin status={row.original.status === "failed" ? false : true} />
+  //   ),
+  // },
   {
     header: "Подробнее",
     cell: ({ row }) => (
@@ -60,18 +54,10 @@ export const columns: ColumnDef<Session>[] = [
         <DialogTrigger asChild>
           <Button variant={"secondary"}>Подробнее о выводе</Button>
         </DialogTrigger>
-        <DialogContent className="min-w-[620px] flex flex-col p-4 gap-4 min-h-[420px]">
-          {row.original?.answers?.map((answer) => (
+        <DialogContent className="min-w-[620px] h-full overflow-scroll flex flex-col p-4 gap-4 min-h-[420px]">
+          {row.original?.asnwers?.map((answer) => (
             <div className="flex items-center gap-4 border rounded-xl">
-              <div>{answer.characteristic}</div>
-              <div
-                className={cn(
-                  +answer > 50 ? "text-main-green" : "text-main-red"
-                )}
-              >
-                {answer.match_percent}
-              </div>
-              <div>{answer.message}</div>
+              {answer}
             </div>
           ))}
         </DialogContent>

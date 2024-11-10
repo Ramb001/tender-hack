@@ -33,7 +33,6 @@ export const UploadForm = (props: UploadFormProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       urls: "",
-      options: ["1", "3"],
     },
   });
 
@@ -50,7 +49,6 @@ export const UploadForm = (props: UploadFormProps) => {
 
     uploadUrl({
       urls: urlSegments,
-      parameters: values.options.map((item) => +item),
     })
       .unwrap()
       .then((data) => {

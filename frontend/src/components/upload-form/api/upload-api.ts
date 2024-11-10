@@ -6,7 +6,7 @@ export const uploadApi = baseApi.injectEndpoints({
     uploadUrl: build.mutation<UploadDtoResponse, UploadDtoRequest>({
       query: (body) => ({
         url: `/session/analyze`,
-        body: { body },
+        body: body,
         method: "POST",
       }),
       // invalidatesTags: ["SESSION"],
