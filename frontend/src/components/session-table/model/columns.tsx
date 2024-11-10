@@ -1,12 +1,22 @@
 import { StatusPin } from "@/components/status-pin";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { Routes } from "@/shared/consts";
 import { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 
 export type Session = {
   id: string;
-  status: "success" | "failed";
+  status?: "success" | "failed";
+  answers?: [
+    {
+      characteristic: string;
+      match_percent: string;
+      message: string;
+    }
+  ];
 };
 
 export const columns: ColumnDef<Session>[] = [
@@ -46,7 +56,26 @@ export const columns: ColumnDef<Session>[] = [
   {
     header: "Подробнее",
     cell: ({ row }) => (
-      <Link to={`${Routes.session}/${row.original.id}`}>Подробнее</Link>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant={"secondary"}>Подробнее о выводе</Button>
+        </DialogTrigger>
+        <DialogContent className="min-w-[620px] flex flex-col p-4 gap-4 min-h-[420px]">
+          {row.original?.answers?.map((answer) => (
+            <div className="flex items-center gap-4 border rounded-xl">
+              <div>{answer.characteristic}</div>
+              <div
+                className={cn(
+                  +answer > 50 ? "text-main-green" : "text-main-red"
+                )}
+              >
+                {answer.match_percent}
+              </div>
+              <div>{answer.message}</div>
+            </div>
+          ))}
+        </DialogContent>
+      </Dialog>
     ),
   },
 ];

@@ -9,6 +9,7 @@ export const uploadApi = baseApi.injectEndpoints({
         body: { body },
         method: "POST",
       }),
+      // invalidatesTags: ["SESSION"],
     }),
   }),
 });

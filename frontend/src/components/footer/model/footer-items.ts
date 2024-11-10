@@ -1,5 +1,4 @@
-import { LucideIcon, TwitterIcon, Facebook, Instagram } from "lucide-react";
-import { ReactElement } from "react";
+import { Facebook, Instagram, TwitterIcon } from "lucide-react";
 import { SVGProps } from "react";
 
 interface FooterTypes {

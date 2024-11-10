@@ -20,8 +20,13 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { LoaderIcon } from "lucide-react";
 import { useState } from "react";
+import { Session } from "@/components/session-table/model/columns";
+type UploadFormProps = {
+  setData: (data: Session[]) => void;
+};
 
-export const UploadForm = () => {
+export const UploadForm = (props: UploadFormProps) => {
+  const { setData } = props;
   const { toast } = useToast();
   const [uploadUrl, { isLoading }] = useUploadUrlMutation();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -45,15 +50,16 @@ export const UploadForm = () => {
 
     uploadUrl({
       urls: urlSegments,
-      paremeters: values.options.map((item) => +item),
+      parameters: values.options.map((item) => +item),
     })
       .unwrap()
-      .then(() =>
+      .then((data) => {
+        setData(data);
         toast({
           variant: "default",
           title: "Ссылки успешно отправлены",
-        })
-      )
+        });
+      })
       .catch(() =>
         toast({
           variant: "destructive",
