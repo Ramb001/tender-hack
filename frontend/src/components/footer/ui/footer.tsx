@@ -18,7 +18,7 @@ export const Footer = () => {
           ))}
         </nav>
 
-        {/* Right Side: Social Media Icons (or placeholder links) */}
+        {/* Right Side: Social Media Icons (or placeholder links)
         <div className="flex space-x-4 text-gray-700">
           {FooterSocialLinks.map((item) => (
             <a key={item.href} href={item.href}>
@@ -27,7 +27,7 @@ export const Footer = () => {
               )}
             </a>
           ))}
-        </div>
+        </div> */}
       </div>
     </footer>
   );
