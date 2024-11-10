@@ -1,5 +1,5 @@
 export type UploadDtoResponse = void;
 export type UploadDtoRequest = {
   urls: string | string[];
-  paremeters: number[];
+  parameters: number[];
 };

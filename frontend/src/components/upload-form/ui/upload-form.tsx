@@ -45,7 +45,7 @@ export const UploadForm = () => {
 
     uploadUrl({
       urls: urlSegments,
-      paremeters: values.options.map((item) => +item),
+      parameters: values.options.map((item) => +item),
     })
       .unwrap()
       .then(() =>
